@@ -14,6 +14,8 @@ services:
     runtime: image
     # You can give the service any name
     name: n8n-service
+    repo: https://github.com/SajidK25/n8n-render.git
+    region: oregon
     image:
       # Pulls the n8n image tagged as latest from Docker Hub
       url: docker.io/n8nio/n8n:latest
