@@ -32,7 +32,8 @@ services:
       # encrypted with the previous value.
       - key: N8N_ENCRYPTION_KEY
         generateValue: true
-
+      - key: N8N_RUNNERS_ENABLED
+        value: 'true'
       # These automatically populate connection details 
       # for the Render Postgres database defined below
       - key: DB_TYPE
