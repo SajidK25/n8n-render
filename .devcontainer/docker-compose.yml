@@ -23,9 +23,7 @@ services:
       - traefik.docker.network=ps_network
       - traefik.enable=true
       - traefik.http.routers.n8n.entrypoints=http # https
-      - traefik.http.routers.n8n.middlewares=traefikAuth@file,default@file
       - traefik.http.routers.n8n.rule=Host(`${DOMAIN}`) # [Attention]
-      - traefik.http.routers.n8n.service=api@internal
       - traefik.http.services.n8n.loadbalancer.server.port=5678
     volumes:
       - ..:/workspaces:cached
