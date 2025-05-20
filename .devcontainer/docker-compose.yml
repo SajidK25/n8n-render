@@ -5,20 +5,40 @@ services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
+    labels:
+      - traefik.enable=false
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=n8n
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - n8n_network
 
   n8n:
     build:
       context: .
       dockerfile: Dockerfile
+    labels:
+      - traefik.docker.network=ps_network
+      - traefik.enable=true
+      - traefik.http.routers.n8n.entrypoints=http # https
+      - traefik.http.routers.n8n.middlewares=traefikAuth@file,default@file
+      - traefik.http.routers.n8n.rule=Host(`${DOMAIN}`) # [Attention]
+      - traefik.http.routers.n8n.service=api@internal
+      - traefik.http.services.n8n.loadbalancer.server.port=5678
     volumes:
       - ..:/workspaces:cached
     command: sleep infinity
     environment:
       DB_POSTGRESDB_HOST: postgres
       DB_TYPE: postgresdb
-      DB_POSTGRESDB_PASSWORD: password
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - n8n_network
+      - ps_network
+
+networks:
+  n8n_network:
+  ps_network:
+    external: true
