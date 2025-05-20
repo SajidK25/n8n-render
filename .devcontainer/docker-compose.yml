@@ -13,7 +13,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     networks:
-      - n8n_network
+      - ps_network
 
   n8n:
     build:
