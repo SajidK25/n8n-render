@@ -36,7 +36,7 @@ services:
       - traefik.http.routers.n8n.entrypoints=http # https
       - traefik.http.routers.n8n.rule=Host(`${DOMAIN}`) # [Attention]
       - traefik.http.services.n8n.loadbalancer.server.port=5678
-      - traefik.http.routers.n8n.middlewares=n8n@docker
+      # - traefik.http.routers.n8n.middlewares=n8n@docker
     environment:
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
