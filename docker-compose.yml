@@ -8,8 +8,6 @@ services:
   postgres:
     image: postgres:16
     restart: always
-    labels:
-      - traefik.enable=false
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -17,7 +15,7 @@ services:
       - POSTGRES_NON_ROOT_USER
       - POSTGRES_NON_ROOT_PASSWORD
     ports:
-      - 5432:5432
+      - 5433:5432
     volumes:
       - db_storage:/var/lib/postgresql/data
       - ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
@@ -32,14 +30,6 @@ services:
   n8n:
     image: docker.n8n.io/n8nio/n8n
     restart: always
-    labels:
-      - traefik.docker.network=ps_network
-      - traefik.enable=true
-      - traefik.http.routers.n8n.entrypoints=http,https
-      - traefik.http.routers.n8n.rule=Host(`${DOMAIN}`) # [Attention]
-      - traefik.http.services.n8n.loadbalancer.server.port=5678
-      - traefik.http.routers.n8n.tls=true
-      # - traefik.http.routers.n8n.middlewares=n8n@docker
     environment:
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
@@ -49,7 +39,7 @@ services:
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
-      - WEBHOOK_URL=https://n8n.pragmiastudios.com
+      - WEBHOOK_URL=http://localhost:5678/
     ports:
       - 5678:5678
     links:
@@ -61,9 +51,6 @@ services:
         condition: service_healthy
     networks:
       - n8n_network
-      - ps_network
 
 networks:
   n8n_network:
-  ps_network:
-    external: true
