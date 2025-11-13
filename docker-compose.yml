@@ -1,5 +1,3 @@
-version: '3.8'
-
 volumes:
   db_storage:
   n8n_storage:
@@ -51,6 +49,40 @@ services:
         condition: service_healthy
     networks:
       - n8n_network
-
+  
+  searxng:
+    # image: searxng/searxng:latest
+    image: localhost/searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    # Expose port internally to n8n only, no external port mapping needed for just n8n use
+    environment:
+      - SEARXNG_PORT=8080
+      - SEARXNG_BIND_ADDRESS=0.0.0.0 # Binds to all interfaces, making it accessible within the Docker network
+    networks:
+      - n8n_network
+    volumes:
+      - ./config/:/etc/searxng/
+      # - ./limiter.toml:/etc/searxng/limiter.toml
+      - ./data/:/var/cache/searxng/
+    ports:
+      - "8080:8080"  # Optional: Expose port for external access if needed
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11435:11434"  # Expose Ollama API port (optional: for external access; internal via network)
+    volumes:
+      - ollama_storage:/root/.ollama  # Persist downloaded models
+      - ./ollama_data:/root/.ollama 
+    networks:
+      - n8n_network
+    # Optional: Add healthcheck for n8n dependency if needed
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 networks:
   n8n_network:
